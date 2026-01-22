@@ -1,8 +1,8 @@
 <template>
     <div ref="overlayRef" class="commercial-overlay" :class="overlayClass">
-        <div v-for="i in 6" :key="i" class="commercial-slice" :style="getSliceStyle(i)"></div>
+        <div v-for="i in 9" :key="i" class="commercial-slice" :style="getSliceStyle(i)"></div>
         <div class="commercial-content">
-            <img v-if="currentTeam" :src="currentTeam.logo" :alt="currentTeam.name" class="commercial-logo" />
+            <img v-if="currentTeam" :src="currentTeam.logo" :alt="currentTeam.name" class="commercial-logo" @error="handleImageError" />
             <div v-if="currentTeam" class="commercial-text" :style="getTextStyle()">{{ currentTeam.name }}</div>
         </div>
     </div>
@@ -26,8 +26,8 @@
     }));
 
     const getSliceStyle = (index: number) => {
-        const positions = ['-10%', '8%', '26%', '44%', '62%', '80%'];
-        const delays = ['0s', '0.08s', '0.16s', '0.24s', '0.32s', '0.4s'];
+        const positions = ['-28%', '-10%', '8%', '26%', '44%', '62%', '80%', '98%', '116%'];
+        const delays = ['0s', '0.08s', '0.16s', '0.24s', '0.32s', '0.4s', '0.48s', '0.56s', '0.64s'];
         return {
             left: positions[index - 1],
             animationDelay: delays[index - 1] + ' !important',
@@ -39,6 +39,10 @@
         return {
             textShadow: `0 4px 8px rgba(0, 0, 0, 0.6), 0 0 40px ${currentTeam.value?.glowColor || 'rgba(227, 6, 19, 0.4)'}`,
         };
+    };
+
+    const handleImageError = (event: Event) => {
+        console.error('Failed to load team logo:', currentTeam.value?.name, currentTeam.value?.logo);
     };
 
     const playCommercial = () => {
@@ -66,8 +70,15 @@
 
     onMounted(() => {
         // Play first 2 commercial after 10 and 20 seconds
+        setTimeout(playCommercial, 5000);
         setTimeout(playCommercial, 10000);
+        setTimeout(playCommercial, 15000);
         setTimeout(playCommercial, 20000);
+        setTimeout(playCommercial, 25000);
+        setTimeout(playCommercial, 30000);
+        setTimeout(playCommercial, 35000);
+        setTimeout(playCommercial, 40000);
+        setTimeout(playCommercial, 45000);
 
         // Then every 15 minutes
         useInterval(playCommercial, 900000);
@@ -85,6 +96,8 @@
         pointer-events: none;
         overflow: hidden;
         opacity: 0;
+        background-color: #000000cb;
+        transition: opacity 0.5s ease;
     }
 
     .commercial-overlay.active {
