@@ -1,7 +1,7 @@
 import { defineConfig } from 'vitepress';
 
 export default defineConfig({
-    title: 'Clock Screensaver',
+    title: 'Screensaver',
     description: 'Hockey clock screensaver with widgets',
     base: '/Screensaver/',
     head: [
