@@ -1,4 +1,4 @@
-# Kölner Haie Clock Screensaver
+# Screensaver
 
 A Vue 3 + VitePress static screensaver application featuring a large clock display, Kölner Haie hockey game schedule, live weather, historical events, Reddit notifications, and animated team commercials with Vanta.js background effects.
 

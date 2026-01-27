@@ -6,10 +6,12 @@
     import { ref, onMounted, onUnmounted } from 'vue';
 
     const vantaRef = ref<HTMLElement | null>(null);
+    const isPaused = ref(false);
     let vantaEffect: any = null;
     let colorIndex = 0;
     let nextColorIndex = 1;
     let transitionProgress = 0;
+    let colorUpdateInterval: ReturnType<typeof setInterval> | null = null;
 
     const colors = [
         0x1a1a2e, // Deep blue
@@ -78,16 +80,16 @@
                     scale: 1.0,
                     scaleMobile: 1.0,
                     color: 0x1a1a2e,
-                    shininess: 30.0,
+                    shininess: 60.0,
                     waveHeight: 20.0,
-                    waveSpeed: 0.25,
+                    waveSpeed: 0.5,
                     zoom: 0.65,
                 });
 
                 console.log('Vanta initialized successfully');
 
                 // Start color transition
-                setInterval(updateColor, 100);
+                colorUpdateInterval = setInterval(updateColor, 100);
             } catch (err) {
                 console.error('Failed to initialize Vanta:', err);
             }
@@ -96,9 +98,92 @@
         initVanta();
     });
 
+    const pauseEffect = () => {
+        if (isPaused.value || !vantaEffect) return;
+
+        isPaused.value = true;
+
+        // Fade out
+        if (vantaRef.value) {
+            vantaRef.value.style.opacity = '0';
+        }
+
+        // Destroy after fade completes
+        setTimeout(() => {
+            if (vantaEffect) {
+                vantaEffect.destroy();
+                vantaEffect = null;
+            }
+            if (colorUpdateInterval) {
+                clearInterval(colorUpdateInterval);
+                colorUpdateInterval = null;
+            }
+        }, 400);
+    };
+
+    const resumeEffect = () => {
+        if (!isPaused.value) return;
+
+        isPaused.value = false;
+
+        // Reset color state to start fresh
+        colorIndex = 0;
+        nextColorIndex = 1;
+        transitionProgress = 0;
+
+        // Reinitialize Vanta
+        const initVanta = () => {
+            if (typeof window === 'undefined' || !vantaRef.value) return;
+
+            const VANTA = (window as any).VANTA;
+            if (!VANTA || !VANTA.WAVES) {
+                setTimeout(initVanta, 100);
+                return;
+            }
+
+            try {
+                vantaEffect = VANTA.WAVES({
+                    el: vantaRef.value,
+                    mouseControls: false,
+                    touchControls: false,
+                    gyroControls: false,
+                    minHeight: 200.0,
+                    minWidth: 200.0,
+                    scale: 1.0,
+                    scaleMobile: 1.0,
+                    color: 0x1a1a2e,
+                    shininess: 30.0,
+                    waveHeight: 20.0,
+                    waveSpeed: 0.25,
+                    zoom: 0.65,
+                });
+
+                // Restart color transition
+                colorUpdateInterval = setInterval(updateColor, 100);
+
+                // Fade in
+                if (vantaRef.value) {
+                    vantaRef.value.style.opacity = '1';
+                }
+            } catch (err) {
+                console.error('Failed to reinitialize Vanta:', err);
+            }
+        };
+
+        initVanta();
+    };
+
+    defineExpose({
+        pauseEffect,
+        resumeEffect,
+    });
+
     onUnmounted(() => {
         if (vantaEffect) {
             vantaEffect.destroy();
+        }
+        if (colorUpdateInterval) {
+            clearInterval(colorUpdateInterval);
         }
     });
 </script>
@@ -111,5 +196,6 @@
         width: 100%;
         height: 100%;
         z-index: 0;
+        transition: opacity 0.4s ease;
     }
 </style>

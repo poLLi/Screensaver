@@ -13,6 +13,11 @@
     import { useInterval } from '../composables/useInterval';
     import { teams } from '../data/teams';
 
+    const emit = defineEmits<{
+        'commercial-start': [];
+        'commercial-end': [];
+    }>();
+
     const overlayRef = ref<HTMLElement | null>(null);
     const currentTeamIndex = ref(0);
     const isActive = ref(false);
@@ -53,6 +58,7 @@
         // Small delay then activate
         setTimeout(() => {
             isActive.value = true;
+            emit('commercial-start');
         }, 50);
 
         // Start exit animation
@@ -65,6 +71,7 @@
             isActive.value = false;
             isExiting.value = false;
             currentTeamIndex.value = (currentTeamIndex.value + 1) % teams.length;
+            emit('commercial-end');
         }, 4500);
     };
 

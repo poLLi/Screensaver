@@ -1,6 +1,6 @@
 <template>
     <div class="screensaver-app">
-        <VantaBackground />
+        <VantaBackground ref="vantaBgRef" />
         <ClockDisplay />
 
         <div class="widgets-container">
@@ -10,11 +10,12 @@
         </div>
 
         <RedditNotification />
-        <CommercialOverlay />
+        <CommercialOverlay @commercial-start="onCommercialStart" @commercial-end="onCommercialEnd" />
     </div>
 </template>
 
 <script setup lang="ts">
+    import { ref } from 'vue';
     import VantaBackground from '../../components/VantaBackground.vue';
     import ClockDisplay from '../../components/ClockDisplay.vue';
     import HockeyWidget from '../../components/HockeyWidget.vue';
@@ -22,6 +23,16 @@
     import HistoryWidget from '../../components/HistoryWidget.vue';
     import RedditNotification from '../../components/RedditNotification.vue';
     import CommercialOverlay from '../../components/CommercialOverlay.vue';
+
+    const vantaBgRef = ref<InstanceType<typeof VantaBackground> | null>(null);
+
+    const onCommercialStart = () => {
+        vantaBgRef.value?.pauseEffect();
+    };
+
+    const onCommercialEnd = () => {
+        vantaBgRef.value?.resumeEffect();
+    };
 </script>
 
 <style scoped>
